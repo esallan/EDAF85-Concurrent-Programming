@@ -1,12 +1,10 @@
 // removed unused imports
 import java.util.concurrent.Semaphore;
 
-// removed unused imports
 import clock.io.Choice;
 import clock.io.ClockData;
 import clock.io.ClockInput;
 import clock.io.ClockInput.UserInput;
-// removed unused imports
 import clock.io.TickerThread;
 
 public class ClockMain {
@@ -14,7 +12,6 @@ public class ClockMain {
         ClockData clockData = new ClockData();
 
         ClockInput  in  = clockData.getInput();
-       // ClockOutput out = clockData.getOutput();
 
         clockData.setTimeToNow(); 
 
@@ -52,7 +49,6 @@ public class ClockMain {
 
             }
 
-         //   System.out.println("choice=" + c + " h=" + h + " m=" + m + " s=" + s);
         }
     }
 }

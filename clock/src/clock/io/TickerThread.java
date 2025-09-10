@@ -18,9 +18,6 @@ public class TickerThread extends Thread{
 			long timeDifference = now - start;
 			System.out.println(timeDifference);
 			
-			//Following check will be encountered multiple times per tick.
-			//THREAD_DELAY is set to slightly less than TICK_INTERVAL for increased accuracy.
-			//(as opposed to the same value) Causes loop execute a few more iterations per tick.
 			if(timeDifference >= TICK_INTERVAL) {
 				clockData.clockTick();
 				start = now;

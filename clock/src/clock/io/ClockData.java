@@ -116,6 +116,6 @@ public class ClockData {
 
     public boolean alarmIsActive(){
         return alarmSet && toSeconds(hTime, mTime, sTime) >= toSeconds(hAlarm, mAlarm, sAlarm);
-        //If the alarm is set and the time time is more or same as the alarm is set to
+        
     }
 }
