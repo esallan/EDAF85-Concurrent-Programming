@@ -1,13 +1,12 @@
-import java.time.LocalDate;
-import java.time.LocalTime;
+// removed unused imports
 import java.util.concurrent.Semaphore;
 
-import clock.AlarmClockEmulator;
+// removed unused imports
 import clock.io.Choice;
 import clock.io.ClockData;
 import clock.io.ClockInput;
 import clock.io.ClockInput.UserInput;
-import clock.io.ClockOutput;
+// removed unused imports
 import clock.io.TickerThread;
 
 public class ClockMain {
@@ -15,12 +14,12 @@ public class ClockMain {
         ClockData clockData = new ClockData();
 
         ClockInput  in  = clockData.getInput();
-        ClockOutput out = clockData.getOutput();
+       // ClockOutput out = clockData.getOutput();
 
         clockData.setTimeToNow(); 
 
 
-        Semaphore semaphore = new Semaphore(0);
+        Semaphore semaphore = in.getSemaphore();
 
         Thread tickerThread = new TickerThread(clockData);
 
@@ -28,7 +27,7 @@ public class ClockMain {
 
 
         while (true) {
-            semaphore.acquire();
+            semaphore.acquire(); //wait for user input 
 
             UserInput userInput = in.getUserInput();
             Choice choice = userInput.choice();
@@ -42,7 +41,7 @@ public class ClockMain {
 
             switch(choice){
                 case SET_TIME:
-                    clockData.setAlarmTime(h, m, s);
+                    clockData.setClockTime(h, m, s);
                     break;
                 case SET_ALARM:
                     clockData.setAlarmTime(h, m, s);
