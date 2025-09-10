@@ -15,6 +15,8 @@ import java.util.concurrent.Semaphore;
  * Then use the reference 'in' to read the input signals.
  */
 public interface ClockInput {
+  
+
 
     /** @return  semaphore signaled on user input (via hardware interrupt) */
     Semaphore getSemaphore();
