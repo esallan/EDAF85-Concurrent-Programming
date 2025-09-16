@@ -29,16 +29,11 @@ public class ClockData {
     }
     
     // Returns the input interface for the clock hardware
-    //Doesn't udnerstand completly why
     public ClockInput getInput(){
         return input;
     }
 
-        // Returns the output interface for the clock hardware
-        //Doesn't udnerstand completly why
-    public ClockOutput getOutput(){
-        return output;
-    }
+   
 
     private int toSeconds(int h, int m, int s) {
         int totSeconds = h * 3600 + m * 60 + s;
@@ -85,7 +80,7 @@ public class ClockData {
         mTime = minutes;
         sTime = seconds;
         mutex.unlock();
-        output.displayTime(hTime, mTime, sTime);
+        output.displayTime(hTime, mTime, sTime);//ta bort denna?
     }
 
     // Advances the clock by one second and updates the display

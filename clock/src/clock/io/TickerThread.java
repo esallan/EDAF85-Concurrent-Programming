@@ -13,6 +13,7 @@ public class TickerThread extends Thread{
 	@Override
 public void run() {
     long start = System.currentTimeMillis();
+
     while(true) {
         long now = System.currentTimeMillis();
         long timeDifference = now - start;
@@ -24,10 +25,10 @@ public void run() {
                 clockData.soundAlarm();
             }
             
-            start = now;  // Reset to current time (not after processing)
+            start = now; 
             
             try {
-                Thread.sleep(THREAD_DELAY);  // Keep your original 500ms
+                Thread.sleep(THREAD_DELAY);  
             } catch (InterruptedException e) {
                 e.printStackTrace();
             	}

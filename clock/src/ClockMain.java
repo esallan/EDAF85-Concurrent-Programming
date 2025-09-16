@@ -24,8 +24,7 @@ public class ClockMain {
 
 
         while (true) {
-            semaphore.acquire(); //wait for user input 
-
+            semaphore.acquire(); 
             UserInput userInput = in.getUserInput();
             Choice choice = userInput.choice();
             int h = userInput.hours();
