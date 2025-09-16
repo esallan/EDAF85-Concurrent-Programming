@@ -18,14 +18,7 @@ public class ClockData {
     private int sTime = 0;
     private final int MAX_NBR_BEEPS = 20;
     private final Lock mutex;
-
     private boolean alarmSet;
-    // Returns the input interface for the clock hardware
-    // Returns the output interface for the clock hardware
-    // Converts hours, minutes, and seconds to total seconds
-    // Converts total seconds to an array of hours, minutes, and seconds
-    // Sets the clock time to the current system time
-
 
     public ClockData(){
         this.emulator = new AlarmClockEmulator();
@@ -63,15 +56,15 @@ public class ClockData {
 		return hms;
 	}
 
-    
     // Sets the clock time to the current system time
     public void setTimeToNow(){
+        mutex.lock();
         LocalTime timeNow = LocalTime.now();
-         hTime = timeNow.getHour();
-         mTime = timeNow.getMinute();
-         sTime = timeNow.getSecond();
+        hTime = timeNow.getHour();
+        mTime = timeNow.getMinute();
+        sTime = timeNow.getSecond();
+        mutex.unlock();
       
-
     }
 
     public void setAlarmTime(int hour, int minutes, int seconds){
@@ -83,7 +76,6 @@ public class ClockData {
         mutex.unlock();
         
         output.setAlarmIndicator(alarmSet); //alarmSet == true -> this should work beacuse the methid takes a boolean
-        
     }
 
     // Sets the current clock time and updates the display
@@ -126,14 +118,15 @@ public class ClockData {
 
     // Enables or disables the alarm and updates the alarm indicator
     public void toggleAlarm() {
+        mutex.lock();
         alarmSet = !alarmSet;
         output.setAlarmIndicator(alarmSet);
+        mutex.unlock();
     }
 
     // Returns true if the alarm is set and the current time is at or past the alarm time
     public boolean alarmIsActive(){
-        return alarmSet && toSeconds(hTime, mTime, sTime) >= toSeconds(hAlarm, mAlarm, sAlarm);
-        
+        return alarmSet && toSeconds(hTime, mTime, sTime) >= toSeconds(hAlarm, mAlarm, sAlarm); 
     }
 }
 

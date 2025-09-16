@@ -11,7 +11,7 @@ public class ClockMain {
     public static void main(String[] args) throws InterruptedException {
         ClockData clockData = new ClockData();
 
-        ClockInput  in  = clockData.getInput();
+        ClockInput in  = clockData.getInput();
 
         clockData.setTimeToNow(); 
 
@@ -31,10 +31,6 @@ public class ClockMain {
             int h = userInput.hours();
             int m = userInput.minutes();
             int s = userInput.seconds();
-
-            if (clockData.alarmIsActive()) {
-                clockData.toggleAlarm();
-            }
 
             switch(choice){
                 case SET_TIME:
