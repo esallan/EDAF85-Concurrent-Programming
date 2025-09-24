@@ -2,11 +2,13 @@ package lift;
 
 import java.util.ArrayList;
 
-public class Monitor {
+public class Monitor extends Thread {
     private static final int MAX_LOAD = 4;
 
     private int entering = 0;
+    private int exiting = 0;
     private int load = 0;
+    private int floor;
 
     private ArrayList<Person> loadedPersons = new ArrayList<>();
     private ArrayList<Person> waitingPersons = new ArrayList<>();
@@ -14,6 +16,10 @@ public class Monitor {
     // check if lift is full
     private boolean liftFull() {
         return load >= MAX_LOAD;
+    }
+
+    public void setCurrentFloor(int floor) {
+        this.floor = floor;
     }
 
     // check if person can enter by checking if lift is full
@@ -41,7 +47,15 @@ public class Monitor {
         entering++;
     }
 
-    public void exitWhenAllowed(Person person) {
+    private boolean personCanExit(Person person) {
+        return true;
+    }
+
+    public void exitWhenAllowed(Person person) throws InterruptedException {
+        while (!personCanExit(person)) {
+            wait();
+        }
+        exiting++;
     }
 
     // delete person that just entered from list of persons who want's to enter
@@ -51,5 +65,9 @@ public class Monitor {
 
     public void exited(Person person) {
 
+    }
+
+    private int getCurrentFloor() {
+        return floor;
     }
 }

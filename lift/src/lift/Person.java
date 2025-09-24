@@ -41,7 +41,8 @@ public class Person extends Thread {
         monitor.addWaitingPerson(this);
     }
 
-    private void waitAndEnter() throws InterruptedException {
+    // synchronized so that only one passenger thread at a time can enter the lift
+    private synchronized void waitAndEnter() throws InterruptedException {
         // passenger should enter when allowed - monitor should keep track of that
         monitor.enterWhenAllowed(this);
         // passenger enters lift
@@ -50,7 +51,8 @@ public class Person extends Thread {
         monitor.entered(this);
     }
 
-    private void waitAndExit() {
+    // synchronized so that only one passenger thread at a time can exit the lift
+    private synchronized void waitAndExit() throws InterruptedException {
         // monitor should keep track of when passenger can exit
         monitor.exitWhenAllowed(this);
         passenger.exitLift();
