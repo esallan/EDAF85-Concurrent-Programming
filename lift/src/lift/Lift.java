@@ -23,13 +23,13 @@ public class Lift extends Thread {
         }
     }
 
-    private synchronized void updatePassengers() {
+    private void updatePassengers() {
         unloadPassengers();
         loadPassengers();
     }
 
-    private synchronized void loadPassengers() {
-        while (!monitor.liftFull() && monitor.passengerWantToEnter()) {
+    private void unloadPassengers() {
+        while (!monitor.isEmpty() && monitor.passengerWantToExit()) {
             try {
                 wait(WAITING_TIME);
             } catch (InterruptedException e) {
@@ -38,8 +38,8 @@ public class Lift extends Thread {
         }
     }
 
-    private synchronized void unloadPassengers() {
-        while (!monitor.isEmpty() && monitor.passengerWantToExit()) {
+    private void loadPassengers() {
+        while (!monitor.liftFull() && monitor.passengerWantToEnter()) {
             try {
                 wait(WAITING_TIME);
             } catch (InterruptedException e) {
@@ -52,19 +52,14 @@ public class Lift extends Thread {
         int currentFloor = monitor.getCurrentFloor();
         int nextFloor = monitor.getNextFloor();
 
-        // Stäng dörrar innan hiss rör sig
+        monitor.toggleMoving();
+        monitor.setDoorsOpen(false);
         view.closeDoors();
-
-        // Flytta hiss grafiskt
         view.moveLift(currentFloor, nextFloor);
-
-        // Uppdatera hissens nuvarande våning
+        view.openDoors(nextFloor);
+        monitor.setDoorsOpen(true);
+        monitor.toggleMoving();
         monitor.setCurrentFloor(nextFloor);
 
-        // Kolla om dörrarna ska öppnas (någon vill på/av)
-        monitor.updateDoors();
-        if (monitor.isDoorsOpen()) {
-            view.openDoors(nextFloor);
-        }
     }
 }
