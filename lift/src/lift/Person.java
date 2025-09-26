@@ -49,6 +49,7 @@ public class Person extends Thread {
         passenger.enterLift();
         // monitor should register that passenger entered
         monitor.entered(this);
+
     }
 
     // synchronized so that only one passenger thread at a time can exit the lift
@@ -58,6 +59,20 @@ public class Person extends Thread {
         passenger.exitLift();
         // monitor should register when person, passenger, has left
         monitor.exited(this);
+        passenger.end();
+    }
+
+    public int getStartFloor() {
+        return passenger.getDestinationFloor();
+
+    }
+
+    public int getDestinationFloor() {
+        return passenger.getDestinationFloor();
+    }
+
+    public boolean isGoingUp() {
+        return goingUp;
     }
 
 }

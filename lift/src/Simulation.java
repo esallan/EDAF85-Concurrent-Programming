@@ -5,23 +5,32 @@ import lift.LiftView;
 import lift.Lift;
 
 public class Simulation {
-    private static final int MAX_PASSENGERS = 20;
+    private static final int NBR_PERSONS = 20;
     private static final int NBR_FLOORS = 7;
 
     public static void main(String[] args) {
-        LiftView view = new LiftView(NBR_FLOORS, MAX_PASSENGERS);
+        LiftView view = new LiftView(NBR_FLOORS, NBR_PERSONS);
         Monitor monitor = new Monitor();
 
-        Person[] persons = new Person[MAX_PASSENGERS];
+        Person[] persons = new Person[NBR_PERSONS];
 
-        for (int i = 0; i < MAX_PASSENGERS; i++) {
+        for (int i = 0; i < NBR_PERSONS; i++) {
             Person person = new Person(view.createPassenger(), monitor);
             persons[i] = person;
             person.start();
         }
 
-        Lift lift = new Lift(); // ska ta flera parametrar men vill inte det av någon anledning??
+        Lift lift = new Lift(view, monitor, persons);
         lift.start();
+
+        while (true) {
+            for (int i = 0; i < NBR_PERSONS; i++) {
+                if (!persons[i].isAlive()) {
+                    persons[i] = new Person(view.createPassenger(), monitor);
+                    persons[i].start();
+                }
+            }
+        }
 
     }
 
