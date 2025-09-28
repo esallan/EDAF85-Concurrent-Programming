@@ -2,57 +2,62 @@ package lift;
 
 import java.util.ArrayList;
 
-public class Monitor extends Thread {
+public class Monitor {
     private static final int MAX_LOAD = 4;
-    private static final int NBR_FLOORS = 6;
+    private int NBR_FLOORS;
 
-    private int personsInQueue = 0;
     private int exiting = 0;
-    private int personsInTheLift = 0;
     private int floor;
     private boolean doorsOpen = false;
     private int entering = 0;
     private boolean goingUp = true;
-    private boolean moving;
 
     private ArrayList<Person> loadedPersons = new ArrayList<>();
     private ArrayList<Person> waitingPersons = new ArrayList<>();
 
-    public void setCurrentFloor(int floor) {
+    public Monitor(int NBR_FLOORS) {
+        this.NBR_FLOORS = NBR_FLOORS;
+    }
+
+    public synchronized void setCurrentFloor(int floor) {
         this.floor = floor;
+        notifyAll();
     }
 
     // check if person can enter by checking if lift is full
-    private boolean personCanEnter(Person person) {
-        boolean direction;
+    private synchronized boolean personCanEnter(Person person) {
+        System.out.println("Person can enter START -----");
+        System.out.println("rightFloor " + Boolean.toString(floor == person.getStartFloor()));
+        System.out.println("doorsOpen " + Boolean.toString(doorsOpen));
+        System.out.println("isDirectionFit " + Boolean.toString(isDirectionFit(person)));
+        return !liftFull() && floor == person.getStartFloor() && doorsOpen && isDirectionFit(person);
+    }
 
-        if (person.getStartFloor() == 0 || person.getStartFloor() == 6) {
-            direction = true;
-        } else {
-            direction = this.goingUp == person.isGoingUp();
+    private boolean isDirectionFit(Person person) {
+        if (floor == 0 || floor == NBR_FLOORS - 1) {
+            return true;
         }
-
-        return !liftFull() && getCurrentFloor() == person.getStartFloor() && doorsOpen && direction;
+        if (person.getDestinationFloor() > floor && goingUp) {
+            return true;
+        }
+        if (person.getDestinationFloor() < floor && !goingUp) {
+            return true;
+        }
+        return false;
     }
 
-    private boolean personCanExit(Person person) {
-        return getCurrentFloor() == person.getDestinationFloor() && doorsOpen;
-
+    private synchronized boolean personCanExit(Person person) {
+        return floor == person.getDestinationFloor() && doorsOpen;
     }
 
-    // adds person to the list with persons that is curently in the lift
-    private void enterLift(Person person) {
-        loadedPersons.add(person);
-
-    }
-
-    public int getCurrentFloor() {
+    public synchronized int getCurrentFloor() {
         return floor;
     }
 
     // adds person to the waiting list for entering the lift
-    public void addWaitingPerson(Person person) {
+    public synchronized void addWaitingPerson(Person person) {
         waitingPersons.add(person);
+        notifyAll();
     }
 
     // if person can't enter -> wait, else let oerson enter lift
@@ -60,9 +65,8 @@ public class Monitor extends Thread {
         while (!personCanEnter(person)) {
             wait();
         }
-        enterLift(person);
-        personsInQueue++;
-        notifyAll(); // SHOULD I REALLY HAVE THIS?
+        entering++;
+        notifyAll();
     }
 
     public synchronized void exitWhenAllowed(Person person) throws InterruptedException {
@@ -70,23 +74,23 @@ public class Monitor extends Thread {
             wait();
         }
         exiting++;
-
+        notifyAll();
     }
 
     // delete person that just entered from list of persons who want's to enter
-    public void entered(Person person) {
+    public synchronized void entered(Person person) {
+        entering--;
+        loadedPersons.add(person);
         waitingPersons.remove(person);
-        personsInQueue--;
-        personsInTheLift++;
+        notifyAll();
     }
 
-    public void exited(Person person) {
+    public synchronized void exited(Person person) {
         loadedPersons.remove(person);
-        personsInTheLift--;
-
+        notifyAll();
     }
 
-    public boolean passengerWantToExit() {
+    public synchronized boolean passengerWantToExit() {
         for (Person person : loadedPersons) { // checks all passengers in the lift
             if (personCanExit(person) || exiting > 0) { // if anyone can exit or someone already is exiting
                 return true;
@@ -95,7 +99,7 @@ public class Monitor extends Thread {
         return false;
     }
 
-    public boolean passengerWantToEnter() {
+    public synchronized boolean passengerWantToEnter() {
         for (Person person : waitingPersons) {
             if (personCanEnter(person) || entering > 0) {
                 return true;
@@ -104,34 +108,56 @@ public class Monitor extends Thread {
         return false;
     }
 
-    public boolean isEmpty() {
-        return personsInTheLift == 0;
+    public synchronized boolean isEmpty() {
+        return loadedPersons.size() == 0;
     }
 
     // check if lift is full
-    public boolean liftFull() {
-        return personsInTheLift >= MAX_LOAD;
+    public synchronized boolean liftFull() {
+        return loadedPersons.size() >= MAX_LOAD;
     }
 
-    public boolean personsToServe() {
+    public synchronized boolean personsToServe() {
         return !(waitingPersons.isEmpty() && loadedPersons.isEmpty());
     }
 
     public int getNextFloor() {
         if (floor == 0) {
             goingUp = true;
-        } else if (floor == NBR_FLOORS) {
+        } else if (floor == NBR_FLOORS - 1) {
             goingUp = false;
         }
         return goingUp ? floor + 1 : floor - 1;
     }
 
-    public synchronized void toggleMoving() {
-        moving = !moving;
-    }
-
     public synchronized void setDoorsOpen(boolean open) {
         doorsOpen = open;
+        notifyAll();
+    }
+
+    public synchronized void waitForPassengerMove() {
+        waitForUnload();
+        waitForLoad();
+    }
+
+    private void waitForUnload() {
+        while (!isEmpty() && passengerWantToExit()) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void waitForLoad() {
+        while (!liftFull() && passengerWantToEnter()) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

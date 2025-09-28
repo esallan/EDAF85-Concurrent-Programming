@@ -10,7 +10,7 @@ public class Simulation {
 
     public static void main(String[] args) {
         LiftView view = new LiftView(NBR_FLOORS, NBR_PERSONS);
-        Monitor monitor = new Monitor();
+        Monitor monitor = new Monitor(NBR_FLOORS);
 
         Person[] persons = new Person[NBR_PERSONS];
 
